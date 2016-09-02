@@ -29,6 +29,22 @@ namespace Animmex_Video
 			global::ModernHttpClient.Resource.String.library_name = global::Animmex_Video.Resource.String.library_name;
 		}
 		
+		public partial class Array
+		{
+			
+			// aapt resource value: 0x7f050000
+			public const int options = 2131034112;
+			
+			static Array()
+			{
+				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
+			}
+			
+			private Array()
+			{
+			}
+		}
+		
 		public partial class Attribute
 		{
 			
@@ -61,11 +77,11 @@ namespace Animmex_Video
 		public partial class Id
 		{
 			
-			// aapt resource value: 0x7f050001
-			public const int listView1 = 2131034113;
+			// aapt resource value: 0x7f060001
+			public const int listView1 = 2131099649;
 			
-			// aapt resource value: 0x7f050000
-			public const int searchView1 = 2131034112;
+			// aapt resource value: 0x7f060000
+			public const int searchView1 = 2131099648;
 			
 			static Id()
 			{

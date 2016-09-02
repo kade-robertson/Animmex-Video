@@ -20,6 +20,7 @@ namespace Animmex_Video
     {
         AnimmexClient api;
         List<AnimmexVideo> vids;
+        DirectLinks links;
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -54,9 +55,33 @@ namespace Animmex_Video
         {
             var links = await api.GetDirectVideoLinks(vids[e.Position]);
             // Toast.MakeText(this, links.BestQualityStream, ToastLength.Long).Show();
-            var intent = new Intent(Intent.ActionView);
-            intent.SetDataAndType(Android.Net.Uri.Parse(links.BestQualityStream), "video/*");
-            StartActivity(Intent.CreateChooser(intent, "Complete action using..."));
+            var options = new List<string>();
+            if (links.Stream1080p != "") options.Add("1080p");
+            if (links.Stream720p != "") options.Add("720p");
+            if (links.StreamSD != "") options.Add("SD");
+
+            var builder = new AlertDialog.Builder(this);
+            builder.SetTitle("Streaming Options");
+            builder.SetItems(options.ToArray(), delegate (object xsender, DialogClickEventArgs xe) {
+                var intent = new Intent(Intent.ActionView);
+                switch (options[xe.Which])
+                {
+                    case "1080p":
+                        intent.SetDataAndType(Android.Net.Uri.Parse(links.Stream1080p), "video/*");
+                        break;
+                    case "720p":
+                        intent.SetDataAndType(Android.Net.Uri.Parse(links.Stream720p), "video/*");
+                        break;
+                    default:
+                    case "SD":
+                        intent.SetDataAndType(Android.Net.Uri.Parse(links.StreamSD), "video/*");
+                        break;
+                }
+
+                StartActivity(Intent.CreateChooser(intent, "Complete action using..."));
+            });
+            var alert = builder.Create();
+            alert.Show();
         }
     }
 }

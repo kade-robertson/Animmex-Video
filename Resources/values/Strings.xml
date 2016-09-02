@@ -2,4 +2,9 @@
 <resources>
     <string name="Hello">Hello World, Click Me!</string>
     <string name="ApplicationName">Animmex Video</string>
+    <string-array name="options">
+      <item>Play SD</item>
+      <item>Play 720p</item>
+      <item>Play 1080p</item>
+    </string-array>
 </resources>
