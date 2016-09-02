@@ -20,7 +20,6 @@ namespace Animmex_Video
     {
         AnimmexClient api;
         List<AnimmexVideo> vids;
-        int count = 1;
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -41,9 +40,8 @@ namespace Animmex_Video
                 Toast.MakeText(this, "Searching...", ToastLength.Short).Show();
                 var videos = await api.Search(((SearchView)sender).Query);
                 vids = videos;
-
                 ListView lv = FindViewById<ListView>(Resource.Id.listView1);
-                lv.Adapter = new CustomAdapter(this, Resource.Layout.Main, videos);
+                lv.Adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleListItem1, videos.Select(vid => vid.Title).ToList());
                 lv.ItemClick += ItemClick;
             }
             catch (Exception ex)
@@ -55,7 +53,10 @@ namespace Animmex_Video
         public async void ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
             var links = await api.GetDirectVideoLinks(vids[e.Position]);
-            Toast.MakeText(this, links.BestQualityStream, ToastLength.Long).Show();
+            // Toast.MakeText(this, links.BestQualityStream, ToastLength.Long).Show();
+            var intent = new Intent(Intent.ActionView);
+            intent.SetDataAndType(Android.Net.Uri.Parse(links.BestQualityStream), "video/*");
+            StartActivity(Intent.CreateChooser(intent, "Complete action using..."));
         }
     }
 }

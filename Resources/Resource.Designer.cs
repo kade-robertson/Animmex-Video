@@ -67,12 +67,6 @@ namespace Animmex_Video
 			// aapt resource value: 0x7f050000
 			public const int searchView1 = 2131034112;
 			
-			// aapt resource value: 0x7f050002
-			public const int videoImg = 2131034114;
-			
-			// aapt resource value: 0x7f050003
-			public const int videoTitle = 2131034115;
-			
 			static Id()
 			{
 				global::Android.Runtime.ResourceIdManager.UpdateIdValues();
