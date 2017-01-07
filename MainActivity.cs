@@ -33,6 +33,8 @@ namespace Animmex_Video
             sb.SetQueryHint("Seach..");
             sb.QueryTextSubmit += QuerySubmitted;
             api = new AnimmexClient(UserAgent.Chrome);
+            ListView lv = FindViewById<ListView>(Resource.Id.listView1);
+            lv.ItemClick += ItemClick;
         }
 
         public async void QuerySubmitted(object sender, EventArgs e)
@@ -43,7 +45,6 @@ namespace Animmex_Video
                 vids = videos;
                 ListView lv = FindViewById<ListView>(Resource.Id.listView1);
                 lv.Adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleListItem1, videos.Select(vid => vid.Title).ToList());
-                lv.ItemClick += ItemClick;
             }
             catch (Exception ex)
             {
@@ -53,35 +54,48 @@ namespace Animmex_Video
 
         public async void ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
-            var links = await api.GetDirectVideoLinks(vids[e.Position]);
-            // Toast.MakeText(this, links.BestQualityStream, ToastLength.Long).Show();
-            var options = new List<string>();
-            if (links.Stream1080p != "") options.Add("1080p");
-            if (links.Stream720p != "") options.Add("720p");
-            if (links.StreamSD != "") options.Add("SD");
+            try
+            {
+                ProgressDialog progress = new ProgressDialog(this);
+                progress.Indeterminate = true;
+                progress.SetProgressStyle(ProgressDialogStyle.Spinner);
+                progress.SetMessage("Finding links...");
+                progress.SetCancelable(false);
+                progress.Show();
+                var links = await api.GetDirectVideoLinks(vids[e.Position]);
+                progress.Dismiss();
+                // Toast.MakeText(this, links.BestQualityStream, ToastLength.Long).Show();
+                var options = new List<string>();
+                if (links.Stream1080p != "") options.Add("1080p");
+                if (links.Stream720p != "") options.Add("720p");
+                if (links.StreamSD != "") options.Add("SD");
 
-            var builder = new AlertDialog.Builder(this);
-            builder.SetTitle("Streaming Options");
-            builder.SetItems(options.ToArray(), delegate (object xsender, DialogClickEventArgs xe) {
-                var intent = new Intent(Intent.ActionView);
-                switch (options[xe.Which])
+                var builder = new AlertDialog.Builder(this);
+                builder.SetTitle("Streaming Options");
+                builder.SetItems(options.ToArray(), delegate (object xsender, DialogClickEventArgs xe)
                 {
-                    case "1080p":
-                        intent.SetDataAndType(Android.Net.Uri.Parse(links.Stream1080p), "video/*");
-                        break;
-                    case "720p":
-                        intent.SetDataAndType(Android.Net.Uri.Parse(links.Stream720p), "video/*");
-                        break;
-                    default:
-                    case "SD":
-                        intent.SetDataAndType(Android.Net.Uri.Parse(links.StreamSD), "video/*");
-                        break;
-                }
+                    var intent = new Intent(Intent.ActionView);
+                    switch (options[xe.Which])
+                    {
+                        case "1080p":
+                            intent.SetDataAndType(Android.Net.Uri.Parse(links.Stream1080p), "video/*");
+                            break;
+                        case "720p":
+                            intent.SetDataAndType(Android.Net.Uri.Parse(links.Stream720p), "video/*");
+                            break;
+                        default:
+                        case "SD":
+                            intent.SetDataAndType(Android.Net.Uri.Parse(links.StreamSD), "video/*");
+                            break;
+                    }
 
-                StartActivity(Intent.CreateChooser(intent, "Complete action using..."));
-            });
-            var alert = builder.Create();
-            alert.Show();
+                    StartActivity(Intent.CreateChooser(intent, "Complete action using..."));
+                });
+                var alert = builder.Create();
+                alert.Show();
+            } catch (Exception ex) {
+                Toast.MakeText(this, "An error occurred, try again.", ToastLength.Short);
+            }
         }
     }
 }
