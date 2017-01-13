@@ -77,11 +77,14 @@ namespace Animmex_Video
 		public partial class Id
 		{
 			
+			// aapt resource value: 0x7f060002
+			public const int listView1 = 2131099650;
+			
 			// aapt resource value: 0x7f060001
-			public const int listView1 = 2131099649;
+			public const int searchView1 = 2131099649;
 			
 			// aapt resource value: 0x7f060000
-			public const int searchView1 = 2131099648;
+			public const int switch1 = 2131099648;
 			
 			static Id()
 			{

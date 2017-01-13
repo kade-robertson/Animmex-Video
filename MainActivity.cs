@@ -21,6 +21,7 @@ namespace Animmex_Video
         AnimmexClient api;
         List<AnimmexVideo> vids;
         DirectLinks links;
+        bool use_cache = true;
 
         protected override void OnCreate(Bundle bundle)
         {
@@ -28,13 +29,21 @@ namespace Animmex_Video
 
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.Main);
-            
+
             SearchView sb = FindViewById<SearchView>(Resource.Id.searchView1);
+            Switch sw = FindViewById<Switch>(Resource.Id.switch1);
+            sw.CheckedChange += UseCacheChanged;
             sb.SetQueryHint("Seach..");
             sb.QueryTextSubmit += QuerySubmitted;
             api = new AnimmexClient(UserAgent.Chrome);
             ListView lv = FindViewById<ListView>(Resource.Id.listView1);
             lv.ItemClick += ItemClick;
+        }
+
+        public void UseCacheChanged(object sender, CompoundButton.CheckedChangeEventArgs e)
+        {
+            var sw = (Switch)sender;
+            use_cache = sw.Checked;
         }
 
         public async void QuerySubmitted(object sender, EventArgs e)
@@ -63,13 +72,12 @@ namespace Animmex_Video
                 progress.SetCancelable(false);
                 progress.Show();
                 var video = vids[e.Position];
-                try
-                {
-                    links = await api.GetCachedVideoLinks(video);
-                }
-                catch
-                {
-                    links = await api.GetDirectVideoLinks(video);
+                if (use_cache) {
+                    try { links = await api.GetCachedVideoLinks(video); }
+                    catch { links = await api.GetDirectVideoLinks(video); }
+                } else {
+                    try { links = await api.GetDirectVideoLinks(video); }
+                    catch { links = await api.GetCachedVideoLinks(video); }
                 }
                 progress.Dismiss();
                 // Toast.MakeText(this, links.BestQualityStream, ToastLength.Long).Show();
@@ -99,7 +107,6 @@ namespace Animmex_Video
                         case "720p":
                             intent.SetDataAndType(Android.Net.Uri.Parse(links.Stream720p), "video/*");
                             break;
-                        default:
                         case "SD":
                             intent.SetDataAndType(Android.Net.Uri.Parse(links.StreamSD), "video/*");
                             break;
