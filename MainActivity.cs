@@ -62,10 +62,20 @@ namespace Animmex_Video
                 progress.SetMessage("Finding links...");
                 progress.SetCancelable(false);
                 progress.Show();
-                var links = await api.GetDirectVideoLinks(vids[e.Position]);
+                var video = vids[e.Position];
+                try
+                {
+                    links = await api.GetCachedVideoLinks(video);
+                }
+                catch
+                {
+                    links = await api.GetDirectVideoLinks(video);
+                }
                 progress.Dismiss();
                 // Toast.MakeText(this, links.BestQualityStream, ToastLength.Long).Show();
                 var options = new List<string>();
+                if (links.Stream2160p != "") options.Add("2160p");
+                if (links.Stream1440p != "") options.Add("1440p");
                 if (links.Stream1080p != "") options.Add("1080p");
                 if (links.Stream720p != "") options.Add("720p");
                 if (links.StreamSD != "") options.Add("SD");
@@ -77,6 +87,12 @@ namespace Animmex_Video
                     var intent = new Intent(Intent.ActionView);
                     switch (options[xe.Which])
                     {
+                        case "2160p":
+                            intent.SetDataAndType(Android.Net.Uri.Parse(links.Stream2160p), "video/*");
+                            break;
+                        case "1440p":
+                            intent.SetDataAndType(Android.Net.Uri.Parse(links.Stream1440p), "video/*");
+                            break;
                         case "1080p":
                             intent.SetDataAndType(Android.Net.Uri.Parse(links.Stream1080p), "video/*");
                             break;
